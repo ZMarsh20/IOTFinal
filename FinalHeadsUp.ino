@@ -7,7 +7,7 @@ const int rs = 13, en = 12, d4 = 11, d5 = 10, d6 = 9, d7 = 8;
 LiquidCrystal lcd(rs, en, d4, d5, d6, d7);
 MMA8452Q accel;
 
-int counter, timer, timerDelay, lightDelay;
+int counter, timer, timerDelay, lightDelay, endIt;
 double tiltVal, avg;
 enum lights {green = 2, yellow, red1, red2, red3};
 bool wordPresent, notCalibrated, neutral, blinkVal, game, twoWords;
@@ -183,6 +183,10 @@ void loop() {
       char resend = 5;
       Serial.println(resend);
       noun = "";
+      endIt++;
+    }
+    if (endIt > 15) {
+      parseInput(27);
     }
   }
 }
