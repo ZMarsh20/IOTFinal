@@ -1,12 +1,10 @@
 import serial
-from datetime import datetime
-from time import sleep
 import socket
 import sqlite3
-import select
 
 HOST = '127.0.0.1'
 PORT = 50000
+serialPort = "COM3"
 
 def sendWord(word, conn):
     conn.sendall(word.encode("utf-8"))
@@ -22,7 +20,7 @@ def setWords(category):
         yield row
 
 
-mySerial = serial.Serial("COM4", 57600, timeout=5)
+mySerial = serial.Serial(serialPort, 57600, timeout=5)
 while True:
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
         s.bind((HOST, PORT))
@@ -34,7 +32,7 @@ while True:
             with conn:
                 nextWord = next(word)
                 sendWord(nextWord, conn)
-                f = open(datetime.now().strftime("%d_%m_%Y_%H_%M_%S") + ".csv", 'w')
+                # f = open(datetime.now().strftime("%d_%m_%Y_%H_%M_%S") + ".csv", 'w')
                 while True:
                     if int(conn.recv(8).decode("utf-8")):
                         input = mySerial.readline().decode("utf-8").strip()
@@ -43,14 +41,14 @@ while True:
                             continue
                         conn.sendall(str(input).encode("utf-8"))
                         if int(input) >= 600:
-                            f.write(nextWord.replace("_", " ") + " -> TIMED OUT")
+                            # f.write(nextWord.replace("_", " ") + " -> TIMED OUT")
                             break
                         if int(input) < 0:
-                            f.write(nextWord.replace("_", " "))
-                            if int(input)+2:
-                                f.write(" -> PASS\n")
-                            else:
-                                f.write(" -> CORRECT\n")
+                            # f.write(nextWord.replace("_", " "))
+                            # if int(input)+2:
+                            #     f.write(" -> PASS\n")
+                            # else:
+                            #     f.write(" -> CORRECT\n")
                             nextWord = next(word)
                             sendWord(nextWord, conn)
 
@@ -60,10 +58,10 @@ while True:
         except:
             mySerial.write(bytes(chr(27).encode()))
             mySerial.close()
-            mySerial = serial.Serial("COM4", 57600, timeout=5)
+            mySerial = serial.Serial(serialPort, 57600, timeout=5)
         finally:
             s.close()
-            try:
-                f.close()
-            except:
-                pass
+            # try:
+            #     f.close()
+            # except:
+            #     pass
