@@ -1,6 +1,3 @@
-import tkinter as tk
-
-from random import randint
 from tkinter import *
 
 import socket
@@ -15,7 +12,6 @@ lab.pack()
 correct = 0
 passes = 0
 gameStarted = False
-
 
 HOST = '127.0.0.1'
 PORT = 50000
@@ -36,7 +32,7 @@ def myThread(category):
             while True:
                 line = s.recv(1024).decode("utf-8")
 
-                if line.isnumeric() and int(line) == 600:
+                if line.isnumeric() and int(line) >= 600:
                     passAnswer()
                     currentWordLabel.config(
                         text="GAME OVER: Your Score: Correct: " + str(correct) + " Passes: " + str(passes))
@@ -70,9 +66,8 @@ def myThread(category):
                 currentWordLabel.config(text=word.replace("_"," "))
                 timerLabel.config(text=str(timer))
 
-    except Exception as e:
-        print(e)
-        print("Connection timed out. Please try again momentarily.")
+    except:
+        print("Something failed. Please check base station and try again momentarily.")
     finally:
         gameStarted = False
 
@@ -90,7 +85,6 @@ def startButtonClicked():
     thread = threading.Thread(target=myThread, args=(var.get(),))
     thread.start()
 
-
 def correctAnswer():
     global correct
     if gameStarted and timer > 0:
@@ -98,7 +92,6 @@ def correctAnswer():
         currentWord = currentWordLabel.cget("text")
         pastWordsListBox.insert("end", currentWord)
         pastWordsListBox.itemconfig(pastWordsListBox.size() - 1, {'fg': 'green'})
-
 
 def passAnswer():
     global passes
@@ -108,6 +101,14 @@ def passAnswer():
         pastWordsListBox.insert("end", currentWord)
         pastWordsListBox.itemconfig(pastWordsListBox.size() - 1, {'fg': 'orange'})
 
+def stopButtonClicked():
+    global end
+    end = True
+    currentWordLabel.config(text="")
+    timerLabel.config(text="")
+    pastWordsListBox.delete(0, "end")
+
+
 var = StringVar(master)
 welcomeLabel = Label(master, text="Welcome to Arduino Heads Up!", font=("Helvetica", 16), fg="orange")
 instructions = Label(master, text="Please select a category:", font=("Helvetica", 14))
@@ -116,6 +117,7 @@ pastWordsListBox = Listbox(master, font=("Helvetica", 14), justify=CENTER, heigh
 timerLabel = Label(master, text="", font=("Helvetica", 24))
 
 startGameButton = Button(master, text="Start Game!", command=startButtonClicked)
+stopGameButton = Button(master, text="Stop Game", command=stopButtonClicked)
 
 var.set("adjective")
 master.geometry("1000x1000")
@@ -126,6 +128,7 @@ welcomeLabel.pack()
 instructions.pack()
 categories.pack()
 startGameButton.pack()
+stopGameButton.pack()
 currentWordLabel.pack()
 pastWordsListBox.pack()
 
